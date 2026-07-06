@@ -16,4 +16,4 @@ This folder contains the rebranded Akin website.
 To keep this project updated on GitHub, any AI agent MUST follow the directive in `../directives/akin_site_update.md` and use the script in `../execution/git_sync.py`.
 
 ## Repository
-URL: https://github.com/r-ferraz/Site-de-vendas-Monjaro
+URL: https://github.com/r-ferraz/Site-de-vendas-Asaass
