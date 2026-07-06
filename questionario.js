@@ -9,6 +9,11 @@ const questionnaireBox = document.getElementById('questionnaire-box');
 const resultsBox = document.getElementById('results-box');
 
 function renderStep() {
+    if (currentStep >= questions.length) {
+        showResults();
+        return;
+    }
+
     const q = questions[currentStep];
 
     // Check condition

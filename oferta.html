@@ -417,14 +417,50 @@
 
         document.getElementById('btn-avancar').addEventListener('click', function () {
             const urlParams = new URLSearchParams(window.location.search);
-            const nextBase = urlParams.get('next') || 'pagamento.html';
             const receitaStatus = urlParams.get('receita') || 'nao'; // Pega o status do index.html
 
-            // Adicionar os dados do plano, status da receita e lead_id na URL de destino
-            const leadId = sessionStorage.getItem('lead_id') || '';
-            const baseFinalUrl = `${nextBase}?plano=${planoSelecionado.id}&valor=${planoSelecionado.valor}&preco=${planoSelecionado.preco}&receita=${receitaStatus}&lead_id=${leadId}`;
-            const finalUrl = window.addUtmsToUrl ? window.addUtmsToUrl(baseFinalUrl) : baseFinalUrl;
-            window.location.href = finalUrl;
+            let finalUrl = '';
+            
+            if (planoSelecionado.id === '60') {
+                if (receitaStatus === 'sim') {
+                    finalUrl = 'https://clkdmg.site/pay/a20c0889-1a28-42b0-9d48-9d7ce07b4833';
+                } else {
+                    finalUrl = 'https://clkdmg.site/pay/a20c0771-bd90-4854-a263-fea5487db743';
+                }
+            } else if (planoSelecionado.id === '20') {
+                if (receitaStatus === 'sim') {
+                    finalUrl = 'https://clkdmg.site/pay/a20c11ff-3529-4247-bfa1-27611c6008a8';
+                } else {
+                    finalUrl = 'https://clkdmg.site/pay/a20c127e-c6cb-4fbe-9d19-a66fe418835d';
+                }
+            } else {
+                // Fallback para outros planos / Teste de Sistema
+                const nextBase = urlParams.get('next') || 'pagamento.html';
+                const leadId = localStorage.getItem('lead_id') || sessionStorage.getItem('lead_id') || '';
+                const baseFinalUrl = `${nextBase}?plano=${planoSelecionado.id}&valor=${planoSelecionado.valor}&preco=${planoSelecionado.preco}&receita=${receitaStatus}&lead_id=${leadId}`;
+                finalUrl = window.addUtmsToUrl ? window.addUtmsToUrl(baseFinalUrl) : baseFinalUrl;
+                window.location.href = finalUrl;
+                return;
+            }
+
+            // Anexa as UTMs e lead_id salvos para o link de checkout externo clkdmg.site
+            const currentUtms = window.getUtmParams ? window.getUtmParams() : {};
+            const urlObj = new URL(finalUrl);
+            
+            Object.keys(currentUtms).forEach(key => {
+                const val = currentUtms[key];
+                if (val) {
+                    urlObj.searchParams.set(key, val);
+                }
+            });
+            
+            // Também garante que adiciona o lead_id caso não esteja nas UTMs mas esteja no storage
+            const leadId = localStorage.getItem('lead_id') || sessionStorage.getItem('lead_id') || '';
+            if (leadId && !urlObj.searchParams.has('lead_id')) {
+                urlObj.searchParams.set('lead_id', leadId);
+            }
+
+            window.location.href = urlObj.toString();
         });
     </script>
 </body>

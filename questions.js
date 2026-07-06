@@ -102,5 +102,34 @@ window.akinQuestions = [
         id: 'meta_peso',
         placeholder: 'ex: 70',
         condition: (data) => data.target === 'Sim'
+    },
+    {
+        id: 'saude_historico',
+        type: 'multiple_grid',
+        question: 'Você possui ou já possuiu alguma destas condições?',
+        options: [
+            'Diabetes Tipo 2',
+            'Pancreatite',
+            'Pedra na vesícula',
+            'Câncer de tireoide',
+            'Distúrbios alimentares',
+            'Nenhuma das anteriores'
+        ]
+    },
+    {
+        id: 'bariatrica',
+        type: 'single',
+        question: 'Já realizou cirurgia bariátrica?',
+        options: ['Sim', 'Não']
+    },
+    {
+        id: 'preferencia',
+        type: 'single',
+        question: 'O que é mais importante para você no tratamento?',
+        options: [
+            'Minimizar efeitos colaterais',
+            'Maximizar a perda de peso',
+            'Equilíbrio entre ambos'
+        ]
     }
 ];
