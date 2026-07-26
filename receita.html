@@ -2,6 +2,8 @@
 <html lang="pt-BR">
 
 <head>
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Maori | Enviar Receita</title>
@@ -341,10 +343,6 @@
                             <input type="text" id="lead-name" class="q-input" placeholder="Seu nome completo">
                         </div>
                         <div class="input-group">
-                            <label style="display:block; margin-bottom:5px; font-weight:500;">E-mail</label>
-                            <input type="email" id="lead-email" class="q-input" placeholder="seu@email.com">
-                        </div>
-                        <div class="input-group">
                             <label style="display:block; margin-bottom:5px; font-weight:500;">WhatsApp</label>
                             <input type="tel" id="lead-whatsapp" class="q-input" placeholder="(00) 00000-0000">
                         </div>
@@ -385,7 +383,9 @@
 
         // --- Função que carimba o arquivo com rodapé antes do upload ---
         async function stampFile(file, name, email, whatsapp) {
-            const stamp = `Receita enviada por: ${name}  |  E-mail: ${email}  |  WhatsApp: ${whatsapp}`;
+            const stamp = email 
+                ? `Receita enviada por: ${name}  |  E-mail: ${email}  |  WhatsApp: ${whatsapp}`
+                : `Receita enviada por: ${name}  |  WhatsApp: ${whatsapp}`;
             const isPDF = file.type === 'application/pdf';
 
             if (isPDF) {
@@ -599,11 +599,11 @@
         const finalSendBtn = document.getElementById('final-send-btn');
         finalSendBtn.addEventListener('click', async function () {
             const name = document.getElementById('lead-name').value;
-            const email = document.getElementById('lead-email').value;
             const whatsapp = document.getElementById('lead-whatsapp').value;
+            const email = '';
 
-            if (!name || !email || !whatsapp) {
-                alert('Informe Nome, E-mail e WhatsApp para continuar.');
+            if (!name || !whatsapp) {
+                alert('Informe Nome e WhatsApp para continuar.');
                 return;
             }
 
@@ -612,14 +612,13 @@
 
             try {
                 const fileExt = selectedFile.name.split('.').pop();
-                // Carimba o arquivo com nome, email e zap da pessoa
+                // Carimba o arquivo com nome e zap da pessoa
                 const safeName = name.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_\-áéíóúâêîôûãõàèìòùç]/g, '');
-                const safeEmail = email.replace(/[^a-zA-Z0-9@._\-]/g, '');
                 const safeZap = whatsapp.replace(/\D/g, '');
-                const fileName = `${safeName}_${safeEmail}_${safeZap}_${Date.now()}.${fileExt}`;
+                const fileName = `${safeName}_${safeZap}_${Date.now()}.${fileExt}`;
                 const filePath = `prescriptions/${fileName}`;
 
-                // Carimba o arquivo INTERNAMENTE com nome, email e zap
+                // Carimba o arquivo INTERNAMENTE com nome e zap
                 els.statusDisplay.textContent = '🖊️ Carimbando arquivo...';
                 let fileToUpload = selectedFile;
                 try {

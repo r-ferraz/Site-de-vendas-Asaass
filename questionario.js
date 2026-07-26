@@ -115,7 +115,7 @@ async function saveLead(data) {
 
         // Salva o HTML de respostas para enviar ao clicar em 'Quero meu plano'
         window._questionarioRespostasHtml = `<table style="width:100%;border-collapse:collapse">${respostasHtml}</table>`;
-        window._questionarioLeadData = { nome: data.nome, email: data.email, whatsapp: data.whatsapp, respostas_triagem: data };
+        window._questionarioLeadData = { nome: data.nome, email: data.email || '', whatsapp: data.whatsapp, respostas_triagem: data };
 
         // Integração para captura de lead
         const utms = window.getUtmParams ? window.getUtmParams() : {};
@@ -127,7 +127,7 @@ async function saveLead(data) {
                 lead_id: utms.lead_id || localStorage.getItem('lead_id') || '',
                 nome: data.nome,
                 whatsapp: data.whatsapp,
-                email: data.email,
+                email: data.email || '',
                 respostas_triagem: data,
                 tipo_origem: 'Questionário',
                 utm_source: utms.utm_source || '',
@@ -221,7 +221,7 @@ function showResults() {
         rows += `<tr style="background:${bg}"><td style="padding:10px;color:#555;width:200px;font-weight:500">${label}</td><td style="padding:10px">${display}</td></tr>`;
     });
     window._questionarioRespostasHtml = `<table style="width:100%;border-collapse:collapse;font-family:Arial,sans-serif">${rows}</table>`;
-    window._questionarioLeadData = { nome: userData.nome, email: userData.email, whatsapp: userData.whatsapp };
+    window._questionarioLeadData = { nome: userData.nome, email: userData.email || '', whatsapp: userData.whatsapp };
 
     const peso = parseFloat(userData.peso);
     const meta = parseFloat(userData.meta_peso) || (peso * 0.85); // Default 15% loss

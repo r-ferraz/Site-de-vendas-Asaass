@@ -63,8 +63,7 @@ window.akinQuestions = [
         question: 'Como podemos falar com você?',
         inputs: [
             { label: 'Nome Completo', type: 'text', id: 'nome', placeholder: 'Seu nome completo' },
-            { label: 'WhatsApp', type: 'tel', id: 'whatsapp', placeholder: '(00) 00000-0000' },
-            { label: 'E-mail', type: 'email', id: 'email', placeholder: 'seu@email.com' }
+            { label: 'WhatsApp', type: 'tel', id: 'whatsapp', placeholder: '(00) 00000-0000' }
         ]
     },
     {
