@@ -4,9 +4,64 @@ let userData = {};
 
 const stepContent = document.getElementById('step-content');
 const nextBtn = document.getElementById('next-btn');
+const backBtn = document.getElementById('back-btn');
 const progressBar = document.querySelector('.progress-bar');
 const questionnaireBox = document.getElementById('questionnaire-box');
 const resultsBox = document.getElementById('results-box');
+
+// State persistence helpers
+function loadState() {
+    const savedData = localStorage.getItem('akin_questionnaire_data');
+    if (savedData) {
+        try {
+            userData = JSON.parse(savedData);
+        } catch (e) {
+            console.error('Erro ao ler dados salvos:', e);
+        }
+    }
+    const savedStep = localStorage.getItem('akin_questionnaire_step');
+    if (savedStep !== null) {
+        const step = parseInt(savedStep, 10);
+        if (!isNaN(step) && step >= 0 && step < questions.length) {
+            currentStep = step;
+        }
+    }
+}
+
+function saveState() {
+    localStorage.setItem('akin_questionnaire_step', currentStep);
+    localStorage.setItem('akin_questionnaire_data', JSON.stringify(userData));
+}
+
+function clearState() {
+    localStorage.removeItem('akin_questionnaire_step');
+    localStorage.removeItem('akin_questionnaire_data');
+}
+
+function collectInputs() {
+    if (currentStep >= questions.length) return;
+    const q = questions[currentStep];
+    if (q.type === 'input') {
+        const inputEl = document.getElementById(q.id);
+        if (inputEl) {
+            userData[q.id] = inputEl.value;
+        }
+    } else if (q.type === 'input_group') {
+        q.inputs.forEach(input => {
+            const inputEl = document.getElementById(input.id);
+            if (inputEl) {
+                userData[input.id] = inputEl.value;
+            }
+        });
+    }
+}
+
+function goToStep(newStep) {
+    history.pushState({ step: newStep }, '', window.location.search);
+    currentStep = newStep;
+    saveState();
+    renderStep();
+}
 
 function renderStep() {
     if (currentStep >= questions.length) {
@@ -21,6 +76,13 @@ function renderStep() {
         currentStep++;
         renderStep();
         return;
+    }
+
+    // Toggle Back button display
+    if (currentStep > 0) {
+        backBtn.style.display = 'inline-flex';
+    } else {
+        backBtn.style.display = 'none';
     }
 
     progressBar.style.width = `${((currentStep + 1) / questions.length) * 100}%`;
@@ -66,7 +128,25 @@ function renderStep() {
 window.selectOption = (id, value, type) => {
     if (type === 'single') {
         userData[id] = value;
-        setTimeout(nextStep, 300);
+        saveState();
+        
+        let nextIndex = currentStep + 1;
+        while (nextIndex < questions.length) {
+            const q = questions[nextIndex];
+            if (!q.condition || q.condition(userData)) {
+                break;
+            }
+            nextIndex++;
+        }
+
+        setTimeout(() => {
+            if (nextIndex < questions.length) {
+                goToStep(nextIndex);
+            } else {
+                history.pushState({ step: 'results' }, '', window.location.search);
+                showResults();
+            }
+        }, 300);
     } else {
         if (!userData[id]) userData[id] = [];
         if (userData[id].includes(value)) {
@@ -74,6 +154,7 @@ window.selectOption = (id, value, type) => {
         } else {
             userData[id].push(value);
         }
+        saveState();
     }
     renderStep();
 };
@@ -93,8 +174,6 @@ async function saveLead(data) {
             nome: 'Nome',
             whatsapp: 'WhatsApp',
             email: 'E-mail',
-            data_nasc: 'Data de nascimento',
-            sexo: 'Sexo biológico',
             peso: 'Peso (kg)',
             altura: 'Altura (cm)',
             target: 'Tem meta de peso?',
@@ -152,7 +231,7 @@ function nextStep() {
     // Collect input data
     const q = questions[currentStep];
     if (q.type === 'input') {
-        const inputVal = document.getElementById(q.id).value;
+        const inputVal = document.getElementById(q.id).value.trim();
         if (!inputVal) {
             alert('Por favor, preencha este campo.');
             return;
@@ -161,7 +240,7 @@ function nextStep() {
     } else if (q.type === 'input_group') {
         let allFilled = true;
         q.inputs.forEach(input => {
-            const val = document.getElementById(input.id).value;
+            const val = document.getElementById(input.id).value.trim();
             if (!val) {
                 allFilled = false;
             }
@@ -179,10 +258,21 @@ function nextStep() {
         }
     }
 
-    if (currentStep < questions.length - 1) {
-        currentStep++;
-        renderStep();
+    saveState();
+
+    let nextIndex = currentStep + 1;
+    while (nextIndex < questions.length) {
+        const q = questions[nextIndex];
+        if (!q.condition || q.condition(userData)) {
+            break;
+        }
+        nextIndex++;
+    }
+
+    if (nextIndex < questions.length) {
+        goToStep(nextIndex);
     } else {
+        history.pushState({ step: 'results' }, '', window.location.search);
         showResults();
     }
 }
@@ -190,6 +280,9 @@ function nextStep() {
 function showResults() {
     questionnaireBox.style.display = 'none';
     resultsBox.style.display = 'block';
+    
+    // Clear storage now that questionnaire is complete
+    clearState();
 
     // --- Salva TODOS os dados do questionário neste momento (completo) ---
     const labels = {
@@ -201,8 +294,6 @@ function showResults() {
         nome: 'Nome',
         whatsapp: 'WhatsApp',
         email: 'E-mail',
-        data_nasc: 'Data de nascimento',
-        sexo: 'Sexo biológico',
         peso: 'Peso (kg)',
         altura: 'Altura (cm)',
         target: 'Tem meta de peso?',
@@ -374,5 +465,43 @@ function showResults() {
     `;
 }
 
+// Navigation Event Listeners
+backBtn.addEventListener('click', () => {
+    collectInputs();
+    saveState();
+    history.back();
+});
+
 nextBtn.addEventListener('click', nextStep);
+
+window.addEventListener('popstate', (event) => {
+    if (event.state) {
+        if (event.state.step === 'results') {
+            questionnaireBox.style.display = 'none';
+            resultsBox.style.display = 'block';
+            showResults();
+        } else if (typeof event.state.step === 'number') {
+            currentStep = event.state.step;
+            questionnaireBox.style.display = 'flex';
+            resultsBox.style.display = 'none';
+            saveState();
+            renderStep();
+        }
+    } else {
+        currentStep = 0;
+        questionnaireBox.style.display = 'flex';
+        resultsBox.style.display = 'none';
+        saveState();
+        renderStep();
+    }
+});
+
+// Initialization
+loadState();
+if (history.state === null) {
+    history.replaceState({ step: currentStep }, '', window.location.search);
+} else if (history.state && typeof history.state.step === 'number') {
+    currentStep = history.state.step;
+}
+
 renderStep();

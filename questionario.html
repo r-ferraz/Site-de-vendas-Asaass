@@ -170,6 +170,28 @@
                 font-size: 1rem;
             }
         }
+
+        .back-link {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            font-weight: 500;
+            align-self: flex-start;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .back-link:hover {
+            color: var(--primary-blue);
+            background: rgba(164, 71, 22, 0.05);
+        }
     </style>
 </head>
 
@@ -189,6 +211,13 @@
 
     <div class="container">
         <div id="questionnaire-box" class="q-container">
+            <button id="back-btn" class="back-link" style="display: none;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Voltar
+            </button>
             <!-- Dynamic Content -->
             <div id="step-content">
                 <h2 class="q-title">Vamos começar sua jornada</h2>

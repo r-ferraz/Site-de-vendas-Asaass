@@ -66,19 +66,7 @@ window.akinQuestions = [
             { label: 'WhatsApp', type: 'tel', id: 'whatsapp', placeholder: '(00) 00000-0000' }
         ]
     },
-    {
-        id: 'data_nasc',
-        type: 'input',
-        question: 'Qual sua data de nascimento?',
-        inputType: 'date',
-        placeholder: 'dd/mm/aaaa'
-    },
-    {
-        id: 'sexo',
-        type: 'single',
-        question: 'Qual seu sexo biológico?',
-        options: ['Masculino', 'Feminino']
-    },
+
     {
         id: 'medidas',
         type: 'input_group',
